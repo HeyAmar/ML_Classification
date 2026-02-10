@@ -2,7 +2,7 @@
 
 ## Problem Statement
 
-- Implement multiple classifi cation models - Build an interactive Streamlit web application to demonstrate your models - Deploy the app on Streamlit Community Cloud (FREE)
+- Implement multiple classification models - Build an interactive Streamlit web application to demonstrate your models - Deploy the app on Streamlit Community Cloud (FREE)
 
 ## Dataset Description
 
