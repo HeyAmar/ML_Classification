@@ -1,8 +1,8 @@
-# ML Classification Assignment
+# ML Classification 
 
 ## Problem Statement
 
-[Add your problem statement here.]
+- Implement multiple classifi cation models - Build an interactive Streamlit web application to demonstrate your models - Deploy the app on Streamlit Community Cloud (FREE)
 
 ## Dataset Description
 
