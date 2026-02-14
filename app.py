@@ -48,6 +48,21 @@ st.title("ML Classification App")
 # sns.heatmap(df.corr(numeric_only=True), annot=True, cmap='coolwarm', ax=ax)
 # st.pyplot(fig)
 
+st.subheader("Download Test Dataset (for upload in app)")
+
+
+try:
+    with open("test.csv", "rb") as file:
+        st.download_button(
+            label="Download test.csv",
+            data=file,
+            file_name="test.csv",
+            mime="text/csv"
+        )
+except FileNotFoundError:
+    st.warning("test.csv not found in project root folder.")
+
+
 # a. Dataset upload option (CSV)
 uploaded_file = st.file_uploader("Upload your test dataset (CSV only)", type=["csv"])
 df = None
