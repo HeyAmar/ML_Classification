@@ -8,7 +8,7 @@ The objective of this project is to build and compare multiple machine learning 
 
 ## Dataset Description
 
-his project uses the Heart Disease dataset obtained from the UCI Machine Learning Repository.
+This project uses the Heart Disease dataset obtained from the UCI Machine Learning Repository.
 
 Dataset Characteristics
 
