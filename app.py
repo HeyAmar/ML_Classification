@@ -16,37 +16,37 @@ import matplotlib.pyplot as plt
 
 st.title("ML Classification App")
 
-# Load dataset from file
-@st.cache_data
-def load_data():
-	df = pd.read_csv("DataSet/heart_disease_uci.csv")
-	return df
+# # Load dataset from file
+# @st.cache_data
+# def load_data():
+# 	df = pd.read_csv("DataSet/heart_disease_uci.csv")
+# 	return df
 
-df = load_data()
-st.write("### Heart Disease Dataset Preview", df.head())
+# df = load_data()
+# st.write("### Heart Disease Dataset Preview", df.head())
 
-# Exploratory Data Analysis
-st.write("## Exploratory Data Analysis")
-st.write("**Shape of dataset:**", df.shape)
-st.write("**Columns:**", df.columns.tolist())
-st.write("**Missing values:**")
-st.write(df.isnull().sum())
-st.write("**Data types:**")
-st.write(df.dtypes)
-st.write("**Target value counts:**")
-st.write(df['num'].value_counts())
+# # Exploratory Data Analysis
+# st.write("## Exploratory Data Analysis")
+# st.write("**Shape of dataset:**", df.shape)
+# st.write("**Columns:**", df.columns.tolist())
+# st.write("**Missing values:**")
+# st.write(df.isnull().sum())
+# st.write("**Data types:**")
+# st.write(df.dtypes)
+# st.write("**Target value counts:**")
+# st.write(df['num'].value_counts())
 
-# Show basic statistics
-st.write("**Summary statistics:**")
-st.write(df.describe(include='all'))
+# # Show basic statistics
+# st.write("**Summary statistics:**")
+# st.write(df.describe(include='all'))
 
-# Show correlation heatmap
-st.write("**Correlation Heatmap:**")
-import seaborn as sns
-import matplotlib.pyplot as plt
-fig, ax = plt.subplots(figsize=(10, 6))
-sns.heatmap(df.corr(numeric_only=True), annot=True, cmap='coolwarm', ax=ax)
-st.pyplot(fig)
+# # Show correlation heatmap
+# st.write("**Correlation Heatmap:**")
+# import seaborn as sns
+# import matplotlib.pyplot as plt
+# fig, ax = plt.subplots(figsize=(10, 6))
+# sns.heatmap(df.corr(numeric_only=True), annot=True, cmap='coolwarm', ax=ax)
+# st.pyplot(fig)
 
 # a. Dataset upload option (CSV)
 uploaded_file = st.file_uploader("Upload your test dataset (CSV only)", type=["csv"])

@@ -2,14 +2,21 @@ import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, accuracy_score
+from sklearn.preprocessing import LabelEncoder
 
 # Load dataset
-df = pd.read_csv('../../DataSet/heart_disease_uci.csv')
+df = pd.read_csv('DataSet/heart_disease_uci.csv')
 
-# Preprocessing: drop id, encode categorical, handle missing if any
-df = df.drop('id', axis=1)
-df = pd.get_dummies(df, drop_first=True)
 
+# Drop id column if present
+if 'id' in df.columns:
+    df = df.drop('id', axis=1)
+# Encode categorical columns
+for col in df.select_dtypes(include=['object', 'bool']).columns:
+    le = LabelEncoder()
+    df[col] = le.fit_transform(df[col].astype(str))
+# Handle missing values (simple fillna, can be improved)
+df = df.fillna(df.median(numeric_only=True))
 X = df.drop('num', axis=1)
 y = df['num']
 
