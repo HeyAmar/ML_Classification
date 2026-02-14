@@ -83,6 +83,6 @@ Missing values are handled using median imputation during preprocessing.
 
 ## Deployment
 
-- [Streamlit App Link] - https://mlclassification-nxl4k8f69uffkvdnryk5jp.streamlit.app/
+- [Streamlit App Link] - https://mlclassification-65jddknbxkgo9cvtm58azz.streamlit.app/
 - [GitHub Repository Link] - https://github.com/HeyAmar/ML_Classification
 
