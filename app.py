@@ -12,44 +12,15 @@ from sklearn.naive_bayes import GaussianNB
 from xgboost import XGBClassifier
 import seaborn as sns
 import matplotlib.pyplot as plt
+import joblib
 
 
-st.title("ML Classification App")
+st.title("Heart Disease Multi-Class Classification")
 
-# # Load dataset from file
-# @st.cache_data
-# def load_data():
-# 	df = pd.read_csv("DataSet/heart_disease_uci.csv")
-# 	return df
-
-# df = load_data()
-# st.write("### Heart Disease Dataset Preview", df.head())
-
-# # Exploratory Data Analysis
-# st.write("## Exploratory Data Analysis")
-# st.write("**Shape of dataset:**", df.shape)
-# st.write("**Columns:**", df.columns.tolist())
-# st.write("**Missing values:**")
-# st.write(df.isnull().sum())
-# st.write("**Data types:**")
-# st.write(df.dtypes)
-# st.write("**Target value counts:**")
-# st.write(df['num'].value_counts())
-
-# # Show basic statistics
-# st.write("**Summary statistics:**")
-# st.write(df.describe(include='all'))
-
-# # Show correlation heatmap
-# st.write("**Correlation Heatmap:**")
-# import seaborn as sns
-# import matplotlib.pyplot as plt
-# fig, ax = plt.subplots(figsize=(10, 6))
-# sns.heatmap(df.corr(numeric_only=True), annot=True, cmap='coolwarm', ax=ax)
-# st.pyplot(fig)
-
-st.subheader("Download Test Dataset (for upload in app)")
-
+# =========================
+# Download test.csv
+# =========================
+st.subheader("Download Test Dataset")
 
 try:
     with open("test.csv", "rb") as file:
@@ -63,65 +34,92 @@ except FileNotFoundError:
     st.warning("test.csv not found in project root folder.")
 
 
-# a. Dataset upload option (CSV)
-uploaded_file = st.file_uploader("Upload your test dataset (CSV only)", type=["csv"])
-df = None
-if uploaded_file is not None:
-	df = pd.read_csv(uploaded_file)
-	st.write("### Uploaded Data Preview", df.head())
+# =========================
+# Upload CSV
+# =========================
+st.subheader("Upload Test Dataset")
+uploaded_file = st.file_uploader("Upload test.csv", type=["csv"])
 
-# b. Model selection dropdown
-model_options = {
-	"Logistic Regression": LogisticRegression(max_iter=1000),
-	"Decision Tree": DecisionTreeClassifier(random_state=42),
-	"K-Nearest Neighbor": KNeighborsClassifier(),
-	"Naive Bayes": GaussianNB(),
-	"Random Forest": RandomForestClassifier(n_estimators=100, random_state=42),
-	"XGBoost": XGBClassifier(use_label_encoder=False, eval_metric='mlogloss', random_state=42)
+if uploaded_file is None:
+    st.info("Upload test.csv to run prediction.")
+    st.stop()
+
+df = pd.read_csv(uploaded_file)
+st.write("Uploaded Data Preview")
+st.dataframe(df.head())
+
+
+# =========================
+# Validate dataset
+# =========================
+if "target" not in df.columns:
+    st.error("Dataset must contain target column 'num'.")
+    st.stop()
+
+X = df.drop("target", axis=1)
+y_true = df["target"]
+
+# =========================
+# Model selection
+# =========================
+model_files = {
+    "Logistic Regression": "model/Logistic_Regression/LogisticRegression.pkl",
+    "Decision Tree": "model/Decision_Tree_Classifier/decision_tree_classifier.pkl",
+    "KNN": "model/K_Nearest_Neighbor_Classifier/KNeighborsClassifier.pkl",
+    "Naive Bayes": "model/Naive_Bayes_Classifier/naive_bayes_classifier.pkl",
+    "Random Forest": "model/Random_Forest/RandomForestClassifier.pkl",
+    "XGBoost": "model/XGBoost/XGBClassifier.pkl"
 }
-model_name = st.selectbox("Select Model", list(model_options.keys()))
-model = model_options[model_name]
 
-# Only proceed if data is uploaded
-if df is not None:
-	# Assume last column is the target
-	X = df.iloc[:, :-1]
-	y = df.iloc[:, -1]
-	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-	model.fit(X_train, y_train)
-	y_pred = model.predict(X_test)
+
+model_name = st.selectbox("Select Model", list(model_files.keys()))
+model = joblib.load(model_files[model_name])
+
+y_pred = model.predict(X)
 
 	# Try to get probability for AUC
-	if hasattr(model, "predict_proba"):
-		try:
-			y_proba = model.predict_proba(X_test)
-			# If binary, use column 1; if multiclass, use macro average
-			if y_proba.shape[1] == 2:
-				auc = roc_auc_score(y_test, y_proba[:, 1])
-			else:
-				auc = roc_auc_score(y_test, y_proba, multi_class='ovr')
-		except Exception:
-			auc = None
-	else:
-		auc = None
 
-	mcc = matthews_corrcoef(y_test, y_pred)
+accuracy = accuracy_score(y_true, y_pred)
+precision = precision_score(y_true, y_pred, average="weighted")
+recall = recall_score(y_true, y_pred, average="weighted")
+f1 = f1_score(y_true, y_pred, average="weighted")
+mcc = matthews_corrcoef(y_true, y_pred)
+
+if hasattr(model, "predict_proba"):
+    y_prob = model.predict_proba(X)
+    auc = roc_auc_score(y_true, y_prob, multi_class="ovr")
+else:
+    auc = None
 
 	# c. Display of evaluation metrics
-	st.write("## Evaluation Metrics")
-	st.write(f"Accuracy: {accuracy_score(y_test, y_pred):.2f}")
-	st.write(f"AUC Score: {auc:.2f}" if auc is not None else "AUC Score: Not available")
-	st.write(f"Precision: {precision_score(y_test, y_pred, average='weighted'):.2f}")
-	st.write(f"Recall: {recall_score(y_test, y_pred, average='weighted'):.2f}")
-	st.write(f"F1 Score: {f1_score(y_test, y_pred, average='weighted'):.2f}")
-	st.write(f"Matthews Correlation Coefficient (MCC): {mcc:.2f}")
 
-	# d. Confusion matrix or classification report
-	st.write("## Confusion Matrix")
-	cm = confusion_matrix(y_test, y_pred)
-	fig, ax = plt.subplots()
-	sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", ax=ax)
-	st.pyplot(fig)
+    
+st.subheader("Evaluation Metrics")
 
-	st.write("## Classification Report")
-	st.text(classification_report(y_test, y_pred))
+st.write(f"Accuracy: {accuracy:.2f}")
+st.write(f"AUC Score: {auc:.2f}" if auc else "AUC Score: N/A")
+st.write(f"Precision: {precision:.2f}")
+st.write(f"Recall: {recall:.2f}")
+st.write(f"F1 Score: {f1:.2f}")
+st.write(f"Matthews Correlation Coefficient (MCC): {mcc:.2f}")
+
+st.write("## Confusion Matrix")
+
+cm = confusion_matrix(y_true, y_pred)
+
+fig, ax = plt.subplots()
+sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", ax=ax)
+ax.set_xlabel("Predicted Label")
+ax.set_ylabel("True Label")
+st.pyplot(fig)
+
+st.write("## Classification Report")
+report = classification_report(y_true, y_pred, output_dict=True)
+report_df = pd.DataFrame(report).transpose()
+
+# st.subheader("Classification Report")
+st.dataframe(
+    report_df.style
+    .format("{:.3f}")
+    .background_gradient(cmap="Blues")
+)
